@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import os
 import re
 import requests
 import ConfigParser
@@ -25,8 +26,8 @@ def check_github_issue(issue_code):
     # print('Please enter the required information:')
     # owner = raw_input("Repository owner username: ")
     # repo = raw_input("Repository name: ")
-    config = ConfigParser.RawConfigParser()
-    config.read('gcm.cfg')
+    config = ConfigParser.ConfigParser()
+    config.read('.git/hooks/gcm.cfg')
     owner = config.get('GCM', 'owner')
     repo = config.get('GCM', 'repo')
     r = requests.get('https://api.github.com/repos/' + str(owner) + '/' + str(repo) + '/issues')
