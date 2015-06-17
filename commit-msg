@@ -1,0 +1,67 @@
+#!/usr/bin/python
+
+import sys
+import re
+import requests
+
+def main(msg_file):
+    with open(msg_file) as obj_file:
+        content = obj_file.read()
+
+    m = re.search('(#)\d+\s', content)
+
+    if m is None:
+        print('Error - Commit does not reffers any issue')
+        sys.exit(1)
+
+    issue = m.group(0)
+    issue_code = int(issue[1:])
+    print('Commit reffers issue ' + issue + ' - Checking issue status on Github')
+    check_github_issue(issue_code)
+
+
+def check_github_issue(issue_code):
+    print('Please enter the required information:')
+    owner = raw_input("Repository owner username: ")
+    repo = raw_input("Repository name: ")
+    r = requests.get('https://api.github.com/repos/' + str(owner) + '/' + str(repo) + '/issues')
+
+    if r.status_code != 200:
+        print('Error while accessing Github API - Request returned with status ' + str(r.status_code))
+        sys.exit(1)
+
+    try:
+        json_content = r.json()
+        selected_issue = None
+        for github_issue in json_content:
+            if github_issue['number'] == issue_code:
+                selected_issue = github_issue
+                break
+
+        if selected_issue is None:
+            print('Error - No such issue #' + str(issue_code) + ' in Github repository')
+            sys.exit(1)
+
+        check_in_development(selected_issue)
+    except ValueError:
+        print('Error - JSON data could not be parsed')
+        sys.exit(1)
+
+
+def check_in_development(github_issue):
+    valid = False
+    for label in github_issue['labels']:
+        if label['name'].lower() == 'em desenvolvimento':
+            valid = True
+
+    if not valid:
+        print('ERROR - Issue is not in development state')
+        sys.exit(1)
+
+    print('Commiting on issue #' + str(github_issue['number']))
+    sys.exit(0)
+
+
+if __name__ == '__main__':
+    message_file = sys.argv[1]
+    main(message_file)
