@@ -51,7 +51,7 @@ def setup():
                 ".git/hooks/commit-msg"
             )
             print('DONE')
-            print('Hook retrieved successfully - Please give execution permission for downloaded hook \'commit-msg\'')
+            print('Hook retrieved successfully')
         else:
             print('Git hook already downloaded.. skipping')
 
