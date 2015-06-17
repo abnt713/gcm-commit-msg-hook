@@ -3,6 +3,7 @@
 import sys
 import re
 import requests
+import ConfigParser
 
 def main(msg_file):
     with open(msg_file) as obj_file:
@@ -21,13 +22,18 @@ def main(msg_file):
 
 
 def check_github_issue(issue_code):
-    print('Please enter the required information:')
-    owner = raw_input("Repository owner username: ")
-    repo = raw_input("Repository name: ")
+    # print('Please enter the required information:')
+    # owner = raw_input("Repository owner username: ")
+    # repo = raw_input("Repository name: ")
+    config = ConfigParser.RawConfigParser()
+    config.read('gcm.cfg')
+    owner = config.get('GCM', 'owner')
+    repo = config.get('GCM', 'repo')
     r = requests.get('https://api.github.com/repos/' + str(owner) + '/' + str(repo) + '/issues')
 
     if r.status_code != 200:
         print('Error while accessing Github API - Request returned with status ' + str(r.status_code))
+        print('Check your config file and try again')
         sys.exit(1)
 
     try:
